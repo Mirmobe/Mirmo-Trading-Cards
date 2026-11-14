@@ -58,12 +58,28 @@ test("shell pieces are not the source, and a burn fades if you slip", () => {
 
 test("grove gates leave a passable gap", () => {
   const course = buildCourse({ length: 1800, rng: mulberry32(3), spacing: 24 });
-  assert.ok(course.gates.length >= 8);
+  assert.ok(course.gates.length >= 6);
   for (const gate of course.gates) {
     assert.ok(gate.clear >= 3.5, `gap ${gate.clear}`);
   }
   assert.ok(course.demons.length >= 6);
   assert.ok(course.trees.length > 40);
+  for (const tree of course.trees) {
+    const reach = tree.hit ?? tree.r * 0.42;
+    assert.ok(Math.abs(tree.x) - reach > 1.4, `trunk ${tree.x} reach ${reach}`);
+  }
+});
+
+test("a straight flight down the lane does not hit a trunk", () => {
+  const course = buildCourse({ length: 900, rng: mulberry32(6), spacing: 26 });
+  const state = createFlight(course, mulberry32(2));
+  state.logs = [];
+  state.demons = [];
+  for (let i = 0; i < 500 && !state.won && !state.lost; i++) {
+    stepFlight(state, { steerX: 0, steerY: 0, shoot: false }, 0.05);
+  }
+  assert.equal(state.health, 4);
+  assert.equal(state.lost, false);
 });
 
 test("bolts remove a demon, trees hurt, a hop clears a log, the path can be finished", () => {

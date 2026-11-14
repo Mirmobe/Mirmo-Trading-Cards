@@ -215,7 +215,7 @@ h2 { font-family: var(--display); font-weight: 560; font-size: 26px; margin: 18p
   scroll-snap-type: x mandatory;
 }
 .pick {
-  flex: 0 0 180px;
+  flex: 0 0 148px;
   scroll-snap-align: start;
   background: transparent;
   border: 2px solid transparent;
@@ -239,6 +239,9 @@ h2 { font-family: var(--display); font-weight: 560; font-size: 26px; margin: 18p
   font-weight: 700;
 }
 .pick.chosen .slot { display: grid; }
+.actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 8px 0 4px; }
+.actions button { min-width: 148px; }
+.note code { color: var(--brass-hi); }
 .stack { display: flex; flex-direction: column; gap: 10px; max-width: 320px; margin: 16px auto 0; }
 details { text-align: left; max-width: 680px; margin: 16px auto 0; color: var(--mist); }
 summary { cursor: pointer; color: var(--parchment); }

@@ -11,7 +11,7 @@ A 50-card collectible series of abstract Indigenous art trading cards.
 Spellflight is a static browser game in [`game/`](game/index.html). It uses the series roster, the charcoal / parchment / antique-gold palette, and original card fronts painted in the browser (this repo did not include image files).
 
 1. **The source.** A huge pulsing ball of bad energy fills the view. Steer a beam with a finger, the mouse, the arrow keys, or a gamepad. The ball is made of pieces. The target is the source, the weak knot inside. Hold the beam on it until it burns through. Three hits, three explosions, then the broom.
-2. **Grove flight.** The view is from the rider's eyes: hands, handle, and the front of the broom sit in the lower part of the screen. Fly a forest path at speed, shoot cosmic bolts at demons, and dodge trees. Press `C` or View for a close chase camera. The night sky is dense with stars, and nebula light shows through the canopy.
+2. **Grove flight.** The view is from the rider's eyes: hands, handle, and the front of the broom sit in the lower part of the screen. Fly a forest path at speed, shoot cosmic bolts at demons, and thread the trees. Press `C` or View for a close chase camera. The night sky is dense with stars, and nebula light shows through the canopy. **Fly now** on the title skips the source. `?stage=2` (also `?stage=flight`) opens straight into the grove.
 
 Each of the three chosen cards grants one spell during the first stage. Sound is synthesized in the browser. No audio files.
 
@@ -48,6 +48,7 @@ The site is a static root. In the repository settings, open **Pages → Build an
 | Action | Touch | Keyboard | Gamepad |
 | --- | --- | --- | --- |
 | Aim the beam / steer the broom | Drag | Arrows or WASD | Left stick |
+| Skip to the grove | Fly now | — | — |
 | Cast spell 1–3 | Spell buttons | 1 2 3 | West, north, east |
 | Shoot | Hold on the screen, or Shoot | Space or J | A or right trigger |
 | Cockpit / chase | View | C | — |

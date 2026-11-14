@@ -143,33 +143,35 @@ export function buildCourse(options = {}) {
   const logs = [];
   const gates = [];
 
-  for (let z = 28; z < length; z += spacing) {
-    const sway = Math.sin(z * 0.017) * 0.8;
+  for (let z = 36; z < length; z += spacing) {
+    const sway = Math.sin(z * 0.017) * 1.1;
     trees.push({
-      x: -9.15 + sway,
+      x: -12.6 + sway,
       z,
-      r: 1.02,
-      h: 11 + (z % 7) * 0.35,
+      r: 0.92,
+      h: 10.5 + (z % 7) * 0.4,
       kind: z % 3,
+      hit: 0.42,
     });
     trees.push({
-      x: 9.25 - sway * 0.5,
-      z: z + spacing * 0.48,
-      r: 1.08,
-      h: 12.5 + (z % 5) * 0.4,
+      x: 12.8 - sway * 0.45,
+      z: z + spacing * 0.5,
+      r: 0.98,
+      h: 11.4 + (z % 5) * 0.45,
       kind: (z + 1) % 3,
+      hit: 0.42,
     });
   }
 
-  for (let z = 86; z < length - 70; z += 84) {
-    const gap = Math.sin(z * 0.011 + 0.6) * 2.7;
-    const left = gap - 3.2;
-    const right = gap + 3.2;
-    trees.push({ x: left, z, r: 0.98, h: 12.2, kind: 1 });
-    trees.push({ x: right, z, r: 0.98, h: 12.2, kind: 2 });
-    gates.push({ z, gap, left, right, clear: right - left - 1.96 });
-    if (Math.floor(z / 84) % 2 === 0) {
-      logs.push({ x: gap + Math.cos(z) * 0.4, z: z + 30, half: 1.45, h: 1.18 });
+  for (let z = 120; z < length - 80; z += 140) {
+    const gap = Math.sin(z * 0.011 + 0.6) * 2.2;
+    const left = gap - 5.1;
+    const right = gap + 5.1;
+    trees.push({ x: left, z, r: 0.78, h: 11.2, kind: 1, hit: 0.4, lane: true });
+    trees.push({ x: right, z, r: 0.78, h: 11.2, kind: 2, hit: 0.4, lane: true });
+    gates.push({ z, gap, left, right, clear: right - left - 1.56 });
+    if (Math.floor(z / 140) % 2 === 0) {
+      logs.push({ x: gap + Math.cos(z) * 0.35, z: z + 36, half: 1.25, h: 1.05 });
     }
     void rng;
   }
@@ -323,10 +325,10 @@ export function stepFlight(state, input, dt) {
 
   if (state.invuln <= 0 && !state.lost) {
     for (const tree of state.trees) {
-      if (tree.z < state.z - 3 || tree.z > state.z + 3) continue;
-      if (state.y > tree.h * 0.9) continue;
+      if (tree.z < state.z - 1.9 || tree.z > state.z + 1.7) continue;
+      if (state.y > tree.h * 0.72) continue;
       const dx = state.x - tree.x;
-      const reach = tree.r + 0.52;
+      const reach = tree.hit ?? Math.max(0.36, tree.r * 0.42);
       if (dx * dx < reach * reach) {
         hurt(state, events, Math.sign(dx) || 1);
         break;
