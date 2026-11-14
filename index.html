@@ -4,27 +4,66 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mirmo Trading Cards, Indian Style</title>
+  <meta name="description" content="A 50-card collectible series of abstract Indigenous art trading cards. Play Mirmo Spellflight.">
+  <meta name="theme-color" content="#07080c">
+  <link rel="icon" type="image/svg+xml" href="./game/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Outfit:wght@400;500;600&display=swap">
   <style>
-    body { font-family: Arial, sans-serif; background: #1a1a1a; color: #f0e6d2; margin: 0; padding: 20px; }
-    h1 { text-align: center; color: #d4af37; }
-    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-    .card { background: #2a2a2a; border: 2px solid #d4af37; border-radius: 10px; padding: 10px; text-align: center; }
-    .card img { max-width: 100%; height: auto; border-radius: 5px; }
-    .legendary { box-shadow: 0 0 15px #d4af37; }
+    :root { --void:#07080c; --gold:#d4af37; --brass:#d4a054; --hi:#f0c27a; --parchment:#f3ecdf; --mist:#a7b0be; --panel:#16141c; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100dvh; padding: 28px 18px 48px;
+      font-family: Outfit, system-ui, sans-serif; color: var(--parchment); background:
+        radial-gradient(80% 40% at 50% -10%, rgba(90, 50, 140, 0.22), transparent 60%), var(--void);
+    }
+    h1, h2 { font-family: Fraunces, Georgia, serif; font-weight: 560; }
+    h1 { text-align: center; color: var(--hi); letter-spacing: 0.04em; margin-bottom: 8px; }
+    a { color: var(--hi); }
+    .lede, .note { text-align: center; color: var(--mist); max-width: 720px; margin: 0 auto 12px; }
+    .play {
+      display: flex; justify-content: center; margin: 18px 0 8px;
+    }
+    .play a {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 48px;
+      padding: 12px 22px; border-radius: 14px; text-decoration: none; font-weight: 650;
+      background: linear-gradient(180deg, #e2b066, #c08a40); color: #1a1206;
+      box-shadow: 0 0 24px -6px rgba(212, 160, 84, 0.8);
+    }
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; max-width: 1100px; margin: 22px auto 0; }
+    .card { background: var(--panel); border: 2px solid rgba(212, 175, 55, 0.45); border-radius: 16px; padding: 8px; text-align: center; }
+    .card canvas { width: 100%; height: auto; border-radius: 10px; display: block; }
+    .card p { color: var(--mist); font-size: 14px; margin: 8px 4px 4px; }
+    .legendary { box-shadow: 0 0 18px rgba(212, 175, 55, 0.45); }
+    footer { text-align: center; color: var(--mist); margin-top: 36px; font-size: 13px; }
   </style>
 </head>
 <body>
   <h1>Mirmo Trading Cards, Indian Style</h1>
-  <p style="text-align:center;">50-card collectible series | Abstract brushstroke Indigenous art | Double-sided Legendary glow cards</p>
-  <div class="gallery">
-    <!-- Add card images here once uploaded to /cards/ folder -->
-    <div class="card legendary"><h3>021 Shapeshifter (Legendary)</h3><p>Front: Enchanted glow shapeshifter</p></div>
-    <div class="card legendary"><h3>022 Dreamwalker (Legendary)</h3><p>Front: Dream spirits</p></div>
-    <div class="card legendary"><h3>026 Sacagawea (Legendary)</h3><p>Historical guide</p></div>
-    <div class="card legendary"><h3>028 Wolf Spirit</h3><p>Spirit Power 92</p></div>
-    <div class="card"><h3>034 Canoe Carver</h3><p>Activity card</p></div>
-    <!-- More cards to be added -->
-  </div>
-  <p style="text-align:center; margin-top:40px;">GitHub: <a href="https://github.com/Mirmobe/Mirmo-Trading-Cards" style="color:#d4af37;">Mirmo-Trading-Cards</a> | Enable Pages in Settings for live site.</p>
+  <p class="lede">50-card collectible series. Abstract brushstroke art, double-sided faces, and a Legendary gold glow. Spirit animals, historical guides, and the work of the hands.</p>
+  <div class="play"><a href="./game/">Play Mirmo Spellflight</a></div>
+  <p class="note">Spellflight uses twelve featured cards from the series. Their fronts are painted in the browser from the same roster, palette, and names, because this gallery did not ship image files.</p>
+  <div class="gallery" id="gallery"></div>
+  <footer>
+    <p>Apps, not investments.</p>
+    <p>GitHub: <a href="https://github.com/Mirmobe/Mirmo-Trading-Cards">Mirmo-Trading-Cards</a></p>
+  </footer>
+  <script type="module">
+    import { CARDS, paintCard, SPELLS } from "./game/cards.js";
+    const gallery = document.getElementById("gallery");
+    for (const card of CARDS) {
+      const article = document.createElement("article");
+      article.className = "card" + (card.rarity === "legendary" ? " legendary" : "");
+      const canvas = document.createElement("canvas");
+      canvas.width = 420;
+      canvas.height = 640;
+      paintCard(canvas, card);
+      const caption = document.createElement("p");
+      caption.textContent = `${card.id} ${card.name} · ${SPELLS[card.spell].name}`;
+      article.append(canvas, caption);
+      gallery.append(article);
+    }
+  </script>
 </body>
 </html>
