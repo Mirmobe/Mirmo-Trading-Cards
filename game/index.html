@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mirmo Spellflight</title>
+  <meta name="description" content="Mirmo Spellflight. Burn the dark source, then fly a spirit broom through a starlit grove.">
+  <meta name="theme-color" content="#07080c">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,640&family=Outfit:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="stage"></div>
+  <div id="ui">
+    <header>
+      <a class="brand" href="../index.html">
+        <span class="spiral" aria-hidden="true">
+          <svg viewBox="0 0 64 64"><path d="M32.3 31.7c.6.5.4 1.4-.3 1.6-1 .4-2-.5-2-1.6 0-1.9 1.9-3 3.6-2.6 2.5.5 3.7 3.3 2.9 5.6-1 3.1-4.6 4.4-7.5 3.4-3.8-1.3-5.4-5.7-4.1-9.3 1.6-4.6 6.9-6.5 11.3-4.8 5.4 2 7.6 8.2 5.5 13.3M21.1 28.8c.4-8.4 8.2-14.8 16.6-14.4 8.6.4 15.8 6.4 20 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <b>Mirmobe</b>
+      </a>
+      <p id="stage-label">Spellflight</p>
+      <div class="hud-actions">
+        <button type="button" id="mute" aria-pressed="false">Sound</button>
+        <button type="button" id="pause">Pause</button>
+      </div>
+    </header>
+
+    <div id="combat" hidden>
+      <div id="spell-hud">
+        <p id="pips" class="pips"></p>
+        <p id="lock-readout">Seek the source inside the ball</p>
+        <div class="meter" aria-hidden="true"><span id="lockbar"></span></div>
+      </div>
+      <div id="flight-hud" hidden>
+        <p id="health" class="pips"></p>
+        <p id="flight-readout"></p>
+        <div id="crosshair" aria-hidden="true"></div>
+      </div>
+      <div id="reticle" hidden></div>
+    </div>
+
+    <div id="dock">
+      <div id="spells" hidden></div>
+      <div id="flight-controls" hidden>
+        <button type="button" id="view-toggle">Cockpit</button>
+        <button type="button" id="shoot">Shoot</button>
+      </div>
+    </div>
+    <footer>Apps, not investments.</footer>
+  </div>
+
+  <section id="screen-title" class="screen">
+    <div class="panel hero">
+      <span class="spiral big" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><path d="M32.3 31.7c.6.5.4 1.4-.3 1.6-1 .4-2-.5-2-1.6 0-1.9 1.9-3 3.6-2.6 2.5.5 3.7 3.3 2.9 5.6-1 3.1-4.6 4.4-7.5 3.4-3.8-1.3-5.4-5.7-4.1-9.3 1.6-4.6 6.9-6.5 11.3-4.8 5.4 2 7.6 8.2 5.5 13.3M21.1 28.8c.4-8.4 8.2-14.8 16.6-14.4 8.6.4 15.8 6.4 20 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <p class="eyebrow">Mirmobe · Mirmo Trading Cards</p>
+      <h1>Spellflight</h1>
+      <p class="lede">Burn the source inside the dark ball. Three bursts of light, then a spirit broom through a starlit grove.</p>
+      <h2>Choose three cards</h2>
+      <p class="note">Each card lends one spell to the beam. Tap a card to take it or set it down.</p>
+      <div id="picker" class="picker"></div>
+      <p id="pick-note" class="note"></p>
+      <button type="button" id="play" class="primary">Play</button>
+      <details>
+        <summary>How to play</summary>
+        <div class="help">
+          <p><strong>Stage 1 — the source.</strong> Aim with a finger, the mouse, the arrows, or a stick. The ball is made of dark pieces. The source is the knot of bad energy inside. Hold the beam on it until it burns through. Do that three times. Keys 1, 2, and 3 cast your cards' spells. A gamepad's west, north, and east buttons do the same.</p>
+          <p><strong>Stage 2 — the grove.</strong> The view sits at the rider's eyes, so the hands, the handle, and the front of the broom stay in the lower part of the screen. Steer along the path. Shoot cosmic bolts with a finger, the space bar, or the Shoot button. Dodge trees and low logs. Demons drift in the lane. Press C or View for a close chase camera. Reach the ring of light.</p>
+          <p>P or Escape pauses. M mutes. Sound is generated in the browser.</p>
+        </div>
+      </details>
+    </div>
+    <footer>Apps, not investments.</footer>
+  </section>
+
+  <section id="screen-ceremony" class="screen" hidden>
+    <div class="panel hero">
+      <p class="eyebrow">Stage clear</p>
+      <h1>The broom is yours</h1>
+      <p class="lede">Three hits. The source breaks. A broom of cedar and starlight is waiting on the path.</p>
+      <button type="button" id="mount" class="primary">Mount the broom</button>
+    </div>
+    <footer>Apps, not investments.</footer>
+  </section>
+
+  <section id="screen-pause" class="screen" hidden>
+    <div class="panel hero">
+      <p class="eyebrow">Paused</p>
+      <h1>Hold</h1>
+      <div class="stack">
+        <button type="button" id="resume" class="primary">Resume</button>
+        <button type="button" id="restart">Restart stage</button>
+        <button type="button" id="quit">Title</button>
+      </div>
+    </div>
+    <footer>Apps, not investments.</footer>
+  </section>
+
+  <section id="screen-end" class="screen" hidden>
+    <div class="panel hero">
+      <p class="eyebrow" id="end-kicker">Grove</p>
+      <h1 id="end-title">The grove is quiet</h1>
+      <p class="lede" id="end-copy"></p>
+      <div class="stack">
+        <button type="button" id="again" class="primary">Play again</button>
+        <button type="button" id="retry">Retry this stage</button>
+      </div>
+    </div>
+    <footer>Apps, not investments.</footer>
+  </section>
+
+  <p id="error" hidden></p>
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.js" } }
+  </script>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
