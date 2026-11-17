@@ -7,7 +7,8 @@ import { createSpellStage } from "./spell-stage.js";
 
 const params = new URLSearchParams(location.search);
 const quick = params.has("quick");
-const startFlight = params.get("stage") === "flight";
+const stageParam = (params.get("stage") || "").toLowerCase();
+const startFlight = stageParam === "flight" || stageParam === "2" || stageParam === "grove";
 const debug = params.has("debug");
 // Query-only preview. The grove steers and shoots on its own so the path can be watched.
 const demo = params.has("demo");
@@ -415,6 +416,11 @@ function bind() {
     if (startFlight) beginFlight();
     else beginSpell(false);
   });
+  document.getElementById("fly-now").addEventListener("click", () => {
+    audio.unlock();
+    audio.click();
+    beginFlight();
+  });
   document.getElementById("mount").addEventListener("click", () => {
     audio.unlock();
     audio.click();
@@ -522,8 +528,11 @@ function main() {
     return;
   }
   bind();
-  beginSpell(true);
-  show("title");
+  if (startFlight) beginFlight();
+  else {
+    beginSpell(true);
+    show("title");
+  }
   requestAnimationFrame(frame);
   if (debug) {
     window.__spellflight = {
@@ -541,6 +550,9 @@ function main() {
       },
       guide() {
         return stage && stage.guide ? stage.guide() : null;
+      },
+      nearest() {
+        return stage && stage.nearest ? stage.nearest() : null;
       },
       view() {
         input.viewEdge = true;

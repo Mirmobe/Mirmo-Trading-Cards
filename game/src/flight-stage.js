@@ -55,14 +55,16 @@ const groundFragment = `
     return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
   }
   void main() {
-    float lane = smoothstep(9.0, 1.4, abs(vWorld.x));
+    float lane = smoothstep(10.5, 2.2, abs(vWorld.x));
     float grit = noise(vWorld.xz * 0.42);
     float streak = smoothstep(0.62, 0.98, noise(vec2(vWorld.x * 0.55, vWorld.z * 0.05)));
-    vec3 moss = vec3(0.015, 0.04, 0.028);
-    vec3 dirt = vec3(0.15, 0.1, 0.055);
+    float edge = smoothstep(5.6, 6.5, abs(vWorld.x)) * smoothstep(8.2, 6.8, abs(vWorld.x));
+    vec3 moss = vec3(0.02, 0.055, 0.032);
+    vec3 dirt = vec3(0.2, 0.14, 0.07);
     vec3 color = mix(moss, dirt, lane);
-    color *= 0.7 + grit * 0.45;
-    color += vec3(0.42, 0.28, 0.08) * streak * lane * 0.45;
+    color *= 0.75 + grit * 0.4;
+    color += vec3(0.42, 0.28, 0.08) * streak * lane * 0.35;
+    color += vec3(0.72, 0.52, 0.22) * edge;
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -160,7 +162,7 @@ export function createFlightStage(quality, team, options = {}) {
   });
   const state = createFlight(course, mulberry32((options.seed ?? 11) + 3));
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0b1020, quality.low ? 0.02 : 0.0165);
+  scene.fog = new THREE.FogExp2(0x1a1438, quality.low ? 0.011 : 0.0085);
   scene.background = new THREE.Color("#070814");
 
   const camera = new THREE.PerspectiveCamera(78, 1, 0.08, 700);
@@ -217,35 +219,49 @@ export function createFlightStage(quality, team, options = {}) {
 
   const dummy = new THREE.Object3D();
   const tint = new THREE.Color();
-  const trunkGeo = new THREE.CylinderGeometry(1, 1.15, 1, 6);
-  const crownGeo = new THREE.ConeGeometry(1, 1, 6);
-  const trunks = new THREE.InstancedMesh(
-    trunkGeo,
-    new THREE.MeshLambertMaterial({ color: 0xffffff }),
-    course.trees.length,
-  );
-  const crowns = new THREE.InstancedMesh(
-    crownGeo,
-    new THREE.MeshLambertMaterial({ color: 0xffffff }),
-    course.trees.length,
-  );
+  const trunkGeo = new THREE.CylinderGeometry(1, 1.28, 1, 7);
+  const crownGeo = new THREE.ConeGeometry(1, 1, 7);
+  const puffGeo = new THREE.SphereGeometry(1, 7, 6);
+  const bark = new THREE.MeshLambertMaterial({
+    color: 0xffffff,
+    emissive: 0x5a381c,
+    emissiveIntensity: 0.42,
+  });
+  const leaf = new THREE.MeshLambertMaterial({
+    color: 0xffffff,
+    emissive: 0x1c5a32,
+    emissiveIntensity: 0.38,
+  });
+  const trunks = new THREE.InstancedMesh(trunkGeo, bark, course.trees.length);
+  const crowns = new THREE.InstancedMesh(crownGeo, leaf, course.trees.length);
+  const puffs = new THREE.InstancedMesh(puffGeo, leaf, course.trees.length);
+  const barkTints = ["#a56a3c", "#8d552e", "#c4844e"];
+  const leafTints = ["#3e9a58", "#2f7a48", "#57b36a"];
   course.trees.forEach((tree, index) => {
-    dummy.position.set(tree.x, tree.h * 0.5, tree.z);
-    dummy.scale.set(tree.r, tree.h, tree.r);
-    dummy.rotation.set(0, 0, 0);
-    tint.set(tree.kind === 0 ? "#4a3428" : tree.kind === 1 ? "#3a2b24" : "#5a4030");
+    dummy.position.set(tree.x, tree.h * 0.46, tree.z);
+    dummy.scale.set(tree.r * 0.72, tree.h * 0.92, tree.r * 0.72);
+    dummy.rotation.set(0, tree.z * 0.2, 0);
+    tint.set(barkTints[tree.kind % 3]);
     paintInstance(trunks, index, dummy, tint);
-    const crownH = 4.2 + (tree.kind + 1) * 0.8;
-    dummy.position.set(tree.x, tree.h + crownH * 0.42, tree.z);
-    dummy.scale.set(2.15 + tree.kind * 0.25, crownH, 2.15);
-    tint.set(tree.kind === 2 ? "#1d4034" : tree.kind === 1 ? "#143028" : "#10261c");
+    const crownH = 3.6 + tree.kind * 0.55;
+    dummy.position.set(tree.x, tree.h + crownH * 0.28, tree.z);
+    dummy.scale.set(2.5 + tree.kind * 0.28, crownH, 2.5);
+    dummy.rotation.set(0, index * 0.4, 0);
+    tint.set(leafTints[tree.kind % 3]);
     paintInstance(crowns, index, dummy, tint);
+    dummy.position.set(tree.x, tree.h * 0.78, tree.z);
+    dummy.scale.set(1.7 + tree.kind * 0.15, 1.15, 1.7);
+    dummy.rotation.set(0, index * 0.7, 0);
+    tint.set(leafTints[(tree.kind + 1) % 3]);
+    paintInstance(puffs, index, dummy, tint);
   });
   trunks.instanceMatrix.needsUpdate = true;
   crowns.instanceMatrix.needsUpdate = true;
+  puffs.instanceMatrix.needsUpdate = true;
   if (trunks.instanceColor) trunks.instanceColor.needsUpdate = true;
   if (crowns.instanceColor) crowns.instanceColor.needsUpdate = true;
-  scene.add(trunks, crowns);
+  if (puffs.instanceColor) puffs.instanceColor.needsUpdate = true;
+  scene.add(trunks, crowns, puffs);
 
   const leafMat = new THREE.MeshBasicMaterial({
     map: leafTexture(),
@@ -300,36 +316,70 @@ export function createFlightStage(quality, team, options = {}) {
     scene.add(wisps);
   }
 
-  const bodyGeo = new THREE.IcosahedronGeometry(0.78, 1);
-  const hornGeo = new THREE.ConeGeometry(0.14, 0.62, 5);
-  const eyeGeo = new THREE.SphereGeometry(0.09, 8, 8);
-  const wingGeo = new THREE.PlaneGeometry(1.25, 0.48);
-  const demonBody = new THREE.MeshLambertMaterial({ color: 0x140814, emissive: 0x4a1238, emissiveIntensity: 0.7 });
-  const demonEye = new THREE.MeshBasicMaterial({ color: 0x7af6ff });
+  const laneMarkers = [
+    ...course.trees.filter((tree) => tree.lane).map((tree) => ({ x: tree.x, z: tree.z })),
+    ...course.logs.map((log) => ({ x: log.x, z: log.z })),
+  ];
+  const warnings = Array.from({ length: 6 }, () => {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(1.25, 0.07, 6, 18),
+      new THREE.MeshBasicMaterial({
+        color: 0xffc56b,
+        transparent: true,
+        opacity: 0.5,
+        depthWrite: false,
+      }),
+    );
+    ring.rotation.x = Math.PI / 2;
+    ring.visible = false;
+    ring.frustumCulled = false;
+    scene.add(ring);
+    return ring;
+  });
+
+  const bodyGeo = new THREE.IcosahedronGeometry(0.86, 1);
+  const hornGeo = new THREE.ConeGeometry(0.16, 0.7, 5);
+  const eyeGeo = new THREE.SphereGeometry(0.13, 8, 8);
+  const wingGeo = new THREE.PlaneGeometry(1.45, 0.55);
+  const demonSkins = [0xff3ec8, 0xff7a32, 0x3de4ff].map(
+    (color) => new THREE.MeshBasicMaterial({ color }),
+  );
+  const demonRims = [0xffd0f0, 0xffe0b0, 0xd8fbff].map(
+    (color) => new THREE.MeshBasicMaterial({ color, side: THREE.BackSide }),
+  );
+  const demonEye = new THREE.MeshBasicMaterial({ color: 0xfff6c2 });
   const demonWing = new THREE.MeshBasicMaterial({
-    color: 0x1a0a18,
+    color: 0x7af6ff,
     transparent: true,
-    opacity: 0.72,
+    opacity: 0.88,
     side: THREE.DoubleSide,
   });
+  const demonHorn = new THREE.MeshBasicMaterial({ color: 0xffd27a });
   const demonGroups = state.demons.map((demon) => {
     const group = new THREE.Group();
-    const body = new THREE.Mesh(bodyGeo, demonBody);
+    const skin = demon.id % demonSkins.length;
+    const body = new THREE.Mesh(bodyGeo, demonSkins[skin]);
     group.add(body);
+    if (!quality.low) {
+      const rim = new THREE.Mesh(bodyGeo, demonRims[skin]);
+      rim.scale.setScalar(1.22);
+      group.add(rim);
+    }
     [-1, 1].forEach((side) => {
-      const horn = new THREE.Mesh(hornGeo, demonBody);
-      horn.position.set(side * 0.28, 0.62, 0.05);
+      const horn = new THREE.Mesh(hornGeo, demonHorn);
+      horn.position.set(side * 0.32, 0.7, 0.05);
       horn.rotation.z = side * -0.4;
       group.add(horn);
       const eye = new THREE.Mesh(eyeGeo, demonEye);
-      eye.position.set(side * 0.22, 0.12, -0.62);
+      eye.position.set(side * 0.24, 0.14, -0.7);
       group.add(eye);
       const wing = new THREE.Mesh(wingGeo, demonWing);
-      wing.position.set(side * 0.7, 0.15, 0.2);
+      wing.position.set(side * 0.85, 0.18, 0.15);
       wing.userData.wing = side;
       group.add(wing);
     });
     group.position.set(demon.x, demon.y, demon.z);
+    group.scale.setScalar(quality.low ? 1.15 : 1.35);
     scene.add(group);
     return group;
   });
@@ -460,10 +510,13 @@ export function createFlightStage(quality, team, options = {}) {
   }
   camera.add(speedLines);
 
-  scene.add(new THREE.HemisphereLight(0x7a68a8, 0x0c140f, 0.78));
-  const moon = new THREE.DirectionalLight(0xb7c6e6, 0.42);
-  moon.position.set(-30, 50, 10);
+  scene.add(new THREE.HemisphereLight(0xb7a6e4, 0x1c2a1c, 1.25));
+  const moon = new THREE.DirectionalLight(0xe4eeff, 1.45);
+  moon.position.set(-36, 58, 24);
   scene.add(moon);
+  const rim = new THREE.DirectionalLight(0xffc48a, 0.62);
+  rim.position.set(28, 16, -18);
+  scene.add(rim);
   const tipLight = new THREE.PointLight(0xffc56b, 3.2, 11, 2);
   scene.add(tipLight);
 
@@ -570,6 +623,20 @@ export function createFlightStage(quality, team, options = {}) {
       }
     }
     for (; gemIndex < gems.length; gemIndex++) gems[gemIndex].visible = false;
+
+    let shown = 0;
+    for (const marker of laneMarkers) {
+      const ahead = marker.z - state.z;
+      if (ahead < 3 || ahead > 46 || shown >= warnings.length) continue;
+      const ring = warnings[shown++];
+      ring.visible = true;
+      ring.position.set(marker.x, 0.28, marker.z);
+      const near = 1 - ahead / 46;
+      ring.material.opacity = 0.16 + near * 0.62;
+      const pulse = 1 + Math.sin(state.time * 5 + marker.z) * 0.08;
+      ring.scale.setScalar(0.85 + near * 0.35 * pulse);
+    }
+    for (let i = shown; i < warnings.length; i++) warnings[i].visible = false;
 
     const speedGlow = Math.min(1, state.speed / 80);
     lineMat.opacity = 0.04 + speedGlow * 0.12;
@@ -684,6 +751,17 @@ export function createFlightStage(quality, team, options = {}) {
     return { steerX, steerY, z: state.z, length: state.length, health: state.health, won: state.won, lost: state.lost };
   }
 
+  function nearest() {
+    let best = null;
+    for (const demon of state.demons) {
+      if (!demon.alive) continue;
+      const dz = demon.z - state.z;
+      if (dz < -4) continue;
+      if (!best || dz < best.dz) best = { dz, x: demon.x, y: demon.y };
+    }
+    return best;
+  }
+
   placeCamera(0.016, 0);
-  return { scene, camera, update, resize, dispose, guide };
+  return { scene, camera, update, resize, dispose, guide, nearest };
 }
